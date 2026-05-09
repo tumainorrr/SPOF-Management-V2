@@ -1,0 +1,1 @@
+วางไฟล์ CSV ใหม่ที่ Initial_Receive แล้วกดปุ่ม Sync ในโปรแกรม

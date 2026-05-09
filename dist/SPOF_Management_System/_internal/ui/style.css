@@ -1,0 +1,196 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: #f8fafc;
+    height: 100vh;
+    margin: 0;
+}
+
+/* Custom Scrollbar */
+.custom-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 10px;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb:hover {
+    background: #cbd5e1;
+}
+
+/* Animation */
+tr {
+    transition: all 0.2s;
+}
+
+/* Chart Canvas Size Control */
+canvas {
+    max-width: 100%;
+}
+
+/* ล็อคความกว้างตาราง */
+#page-scan table {
+    table-layout: fixed;
+    width: 100%;
+    min-width: 1320px;
+}
+
+#page-scan .scan-detail-table .col-rownum {
+    width: 52px;
+}
+
+#page-scan .scan-detail-table .col-file {
+    width: 30%;
+}
+
+#page-scan .scan-detail-table .col-ext {
+    width: 7%;
+}
+
+#page-scan .scan-detail-table .col-current {
+    width: 10%;
+}
+
+#page-scan .scan-detail-table .col-vers {
+    width: 8%;
+}
+
+#page-scan .scan-detail-table .col-total {
+    width: 10%;
+}
+
+#page-scan .scan-detail-table .col-last-original,
+#page-scan .scan-detail-table .col-first-history {
+    width: 17.5%;
+}
+
+/* ซ่อนลูกศรขึ้น-ลง ในช่อง Input Number */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance: textfield;
+}
+
+/* ป้องกันตัวหนังสือล้นจนตารางยืด */
+#page-scan td,
+#page-scan th {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    user-select: text;
+    -webkit-user-select: text;
+}
+
+#page-scan tbody td {
+    cursor: text;
+}
+
+#page-scan .scan-detail-table th:first-child,
+#page-scan .scan-detail-table td:first-child {
+    text-align: center;
+}
+
+#page-scan .scan-detail-table th:nth-child(4),
+#page-scan .scan-detail-table th:nth-child(6),
+#page-scan .scan-detail-table td:nth-child(4),
+#page-scan .scan-detail-table td:nth-child(6) {
+    text-align: right;
+}
+
+#page-scan .scan-detail-table th:nth-child(3),
+#page-scan .scan-detail-table th:nth-child(5),
+#page-scan .scan-detail-table td:nth-child(3),
+#page-scan .scan-detail-table td:nth-child(5) {
+    text-align: center;
+}
+
+@media (max-width: 1600px) {
+    #page-scan table {
+        min-width: 1240px;
+    }
+
+    #page-scan .scan-detail-table .col-file {
+        width: 28%;
+    }
+
+    #page-scan .scan-detail-table .col-last-original,
+    #page-scan .scan-detail-table .col-first-history {
+        width: 18%;
+    }
+}
+
+@media (max-width: 1280px) {
+    #page-scan table {
+        min-width: 1180px;
+    }
+
+    #page-scan .scan-detail-table .col-file {
+        width: 26%;
+    }
+
+    #page-scan .scan-detail-table .col-ext {
+        width: 8%;
+    }
+
+    #page-scan .scan-detail-table .col-current,
+    #page-scan .scan-detail-table .col-total {
+        width: 11%;
+    }
+
+    #page-scan .scan-detail-table .col-last-original,
+    #page-scan .scan-detail-table .col-first-history {
+        width: 18.5%;
+    }
+}
+
+@media (max-width: 1024px) {
+    #page-scan table {
+        min-width: 1120px;
+    }
+
+    #page-scan .scan-detail-table .col-file {
+        width: 24%;
+    }
+
+    #page-scan .scan-detail-table .col-last-original,
+    #page-scan .scan-detail-table .col-first-history {
+        width: 19%;
+    }
+}
+
+::selection {
+    background: rgba(99, 102, 241, 0.2);
+    color: inherit;
+}
+
+::-moz-selection {
+    background: rgba(99, 102, 241, 0.2);
+    color: inherit;
+}
+
+/* สไตล์สำหรับ Badge นโยบายการลบ */
+.badge {
+    background-color: #e2e8f0;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    color: #475569;
+}
+
+/* เน้นตัวเลข Space Saved */
+#txt-total-saved {
+    color: #10b981;
+    font-size: 1.5rem;
+    font-weight: 800;
+}
