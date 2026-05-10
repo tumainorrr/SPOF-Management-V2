@@ -1390,6 +1390,60 @@ function renderComparisonUI(response, mode = 'vs_current') {
         }
     });
 }
+
+const TAB_GROUPS = {
+    'main': 'overview',
+    'compare': 'analysis',
+    'after-detail': 'analysis',
+    'delete-version': 'analysis',
+    'scan': 'operations',
+    'data-tools': 'operations',
+    'action-center': 'operations'
+};
+
+const GROUP_DEFAULT_TABS = {
+    'overview': 'main',
+    'analysis': 'compare',
+    'operations': 'scan'
+};
+
+function switchMainTab(groupName) {
+    switchTab(GROUP_DEFAULT_TABS[groupName] || 'main');
+}
+
+function updateHeaderTabState(tabName) {
+    const groupBtns = {
+        'overview': 'btn-group-overview',
+        'analysis': 'btn-group-analysis',
+        'operations': 'btn-group-operations'
+    };
+
+    const subnavs = {
+        'overview': 'subnav-overview',
+        'analysis': 'subnav-analysis',
+        'operations': 'subnav-operations'
+    };
+
+    const activeGroup = TAB_GROUPS[tabName] || 'overview';
+
+    Object.entries(groupBtns).forEach(([groupName, id]) => {
+        const btn = document.getElementById(id);
+        if (!btn) return;
+        btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-sm');
+        btn.classList.add('text-slate-500');
+        if (groupName === activeGroup) {
+            btn.classList.remove('text-slate-500');
+            btn.classList.add('bg-indigo-600', 'text-white', 'shadow-sm');
+        }
+    });
+
+    Object.entries(subnavs).forEach(([groupName, id]) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.toggle('hidden', groupName !== activeGroup);
+    });
+}
+
 function switchTab(tabName) {
     // 1. รายชื่อ ID ของหน้าที่ต้องจัดการ
     const pages = {
@@ -1438,6 +1492,8 @@ function switchTab(tabName) {
     }
 
     // --- เงื่อนไขการโหลดข้อมูลในแต่ละหน้า ---
+    updateHeaderTabState(tabName);
+
     if (tabName === 'scan') {
         updateFileList();
     }

@@ -11,104 +11,110 @@
 </head>
 
 <body class="flex flex-col text-slate-800">
-    <header class="bg-white border-b border-slate-200 p-4 flex justify-between items-center z-50">
-        <div class="flex items-center gap-3">
-            <div class="bg-indigo-600 p-2 rounded-xl text-white shadow-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path>
-                    <path d="M22 12A10 10 0 0 0 12 2v10z"></path>
-                </svg>
+    <header class="bg-white border-b border-slate-200 px-5 py-4 z-50">
+        <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+            <div class="flex items-center gap-3 shrink-0">
+                <div class="bg-indigo-600 p-2 rounded-xl text-white shadow-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path>
+                        <path d="M22 12A10 10 0 0 0 12 2v10z"></path>
+                    </svg>
+                </div>
+                <h1 class="text-lg font-black tracking-tight uppercase">SPOF <span class="text-indigo-600">Storage</span>
+                </h1>
             </div>
-            <h1 class="text-lg font-black tracking-tight uppercase">SPOF <span class="text-indigo-600">Storage</span>
-            </h1>
+
+            <nav class="flex flex-wrap items-center gap-2 rounded-2xl border border-slate-200 bg-slate-100 p-1.5 shadow-sm xl:justify-end">
+                <button onclick="switchTab('main')" id="btn-main"
+                    class="px-4 py-2.5 rounded-xl text-[11px] font-bold bg-white shadow-sm text-indigo-600 transition-all flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 13h8V3H3z" />
+                        <path d="M13 21h8v-6h-8z" />
+                        <path d="M13 11h8V3h-8z" />
+                        <path d="M3 21h8v-4H3z" />
+                    </svg>
+                    <span>OVERALL DASHBOARD</span>
+                </button>
+
+                <div class="h-7 w-px bg-slate-200 hidden xl:block"></div>
+
+                <button onclick="switchTab('after-detail')" id="btn-after-detail"
+                    class="px-4 py-2.5 rounded-xl text-[11px] font-bold text-slate-500 transition-all flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 3a9 9 0 1 0 9 9" />
+                        <path d="M12 7v5l3 3" />
+                        <path d="M20 4v5h-5" />
+                    </svg>
+                    <span>VERSION ANALYSIS</span>
+                </button>
+
+                <button onclick="switchTab('delete-version')" id="btn-delete-version"
+                    class="px-4 py-2.5 rounded-xl text-[11px] font-bold text-slate-500 transition-all flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 6h18" />
+                        <path d="M8 6V4h8v2" />
+                        <path d="M19 6l-1 13a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                        <path d="M10 11v6" />
+                        <path d="M14 11v6" />
+                    </svg>
+                    <span>CLEANUP HISTORY</span>
+                </button>
+
+                <button onclick="switchTab('compare')" id="btn-compare"
+                    class="px-4 py-2.5 rounded-xl text-[11px] font-bold text-slate-500 transition-all flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 20V10" />
+                        <path d="M10 20V4" />
+                        <path d="M16 20v-8" />
+                        <path d="M22 20v-4" />
+                    </svg>
+                    <span>STORAGE COMPARISON</span>
+                </button>
+
+                <div class="h-7 w-px bg-slate-200 hidden xl:block"></div>
+
+                <button onclick="switchTab('scan')" id="btn-scan"
+                    class="px-4 py-2.5 rounded-xl text-[11px] font-bold text-slate-500 transition-all flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 7h18" />
+                        <path d="M5 7V5a2 2 0 0 1 2-2h3l2 2h5a2 2 0 0 1 2 2v2" />
+                        <path d="M5 7h14l-1.2 10.2A2 2 0 0 1 15.82 19H8.18a2 2 0 0 1-1.98-1.8L5 7Z" />
+                    </svg>
+                    <span>LIBRARY EXPLORER</span>
+                </button>
+
+                <button onclick="switchTab('action-center')" id="btn-action-center"
+                    class="px-4 py-2.5 rounded-xl text-[11px] font-bold text-slate-500 transition-all flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 12h7" />
+                        <path d="M14 6h7" />
+                        <path d="M14 18h7" />
+                        <circle cx="10" cy="12" r="3" />
+                        <circle cx="7" cy="6" r="2" />
+                        <circle cx="7" cy="18" r="2" />
+                    </svg>
+                    <span>ACTION CENTER</span>
+                </button>
+
+                <button onclick="switchTab('data-tools')" id="btn-data-tools"
+                    class="px-4 py-2.5 rounded-xl text-[11px] font-bold text-slate-500 transition-all flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a1 1 0 0 0 0-1.4l-1.6-1.6a1 1 0 0 0-1.4 0z" />
+                        <path d="m16 8-8.5 8.5L6 20l3.5-1.5L18 10" />
+                        <path d="M4 20h16" />
+                    </svg>
+                    <span>DATA TOOLS</span>
+                </button>
+            </nav>
         </div>
-
-        <nav class="flex gap-1 bg-slate-100 p-1 rounded-2xl border border-slate-200">
-            <button onclick="switchTab('main')" id="btn-main"
-                class="px-6 py-2 rounded-xl text-xs font-bold bg-white shadow-sm text-indigo-600 transition-all flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M3 13h8V3H3z" />
-                    <path d="M13 21h8v-6h-8z" />
-                    <path d="M13 11h8V3h-8z" />
-                    <path d="M3 21h8v-4H3z" />
-                </svg>
-                <span>OVERALL DASHBOARD</span>
-            </button>
-
-            <button onclick="switchTab('compare')" id="btn-compare"
-                class="px-6 py-2 rounded-xl text-xs font-bold text-slate-500 transition-all flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M4 20V10" />
-                    <path d="M10 20V4" />
-                    <path d="M16 20v-8" />
-                    <path d="M22 20v-4" />
-                </svg>
-                <span>STORAGE COMPARISON</span>
-            </button>
-
-            <button onclick="switchTab('scan')" id="btn-scan"
-                class="px-6 py-2 rounded-xl text-xs font-bold text-slate-500 transition-all flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M3 7h18" />
-                    <path d="M5 7V5a2 2 0 0 1 2-2h3l2 2h5a2 2 0 0 1 2 2v2" />
-                    <path d="M5 7h14l-1.2 10.2A2 2 0 0 1 15.82 19H8.18a2 2 0 0 1-1.98-1.8L5 7Z" />
-                </svg>
-                <span>LIBRARY EXPLORER</span>
-            </button>
-
-            <button onclick="switchTab('after-detail')" id="btn-after-detail"
-                class="px-6 py-2 rounded-xl text-xs font-bold text-slate-500 transition-all flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 3a9 9 0 1 0 9 9" />
-                    <path d="M12 7v5l3 3" />
-                    <path d="M20 4v5h-5" />
-                </svg>
-                <span>VERSION ANALYSIS</span>
-            </button>
-
-            <button onclick="switchTab('delete-version')" id="btn-delete-version"
-                class="px-6 py-2 rounded-xl text-xs font-bold text-slate-500 transition-all flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M3 6h18" />
-                    <path d="M8 6V4h8v2" />
-                    <path d="M19 6l-1 13a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-                    <path d="M10 11v6" />
-                    <path d="M14 11v6" />
-                </svg>
-                <span>CLEANUP HISTORY</span>
-            </button>
-
-            <button onclick="switchTab('action-center')" id="btn-action-center"
-                class="px-6 py-2 rounded-xl text-xs font-bold text-slate-500 transition-all flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M3 12h7" />
-                    <path d="M14 6h7" />
-                    <path d="M14 18h7" />
-                    <circle cx="10" cy="12" r="3" />
-                    <circle cx="7" cy="6" r="2" />
-                    <circle cx="7" cy="18" r="2" />
-                </svg>
-                <span>ACTION CENTER</span>
-            </button>
-
-            <button onclick="switchTab('data-tools')" id="btn-data-tools"
-                class="px-6 py-2 rounded-xl text-xs font-bold text-slate-500 transition-all flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a1 1 0 0 0 0-1.4l-1.6-1.6a1 1 0 0 0-1.4 0z" />
-                    <path d="m16 8-8.5 8.5L6 20l3.5-1.5L18 10" />
-                    <path d="M4 20h16" />
-                </svg>
-                <span>DATA TOOLS</span>
-            </button>
-        </nav>
     </header>
 
     <main class="flex-grow relative overflow-y-auto bg-slate-50">
