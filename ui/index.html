@@ -26,47 +26,89 @@
 
         <nav class="flex gap-1 bg-slate-100 p-1 rounded-2xl border border-slate-200">
             <button onclick="switchTab('main')" id="btn-main"
-                class="px-6 py-2 rounded-xl text-xs font-bold bg-white shadow-sm text-indigo-600 transition-all">OVERALL
-                DASHBOARD</button>
+                class="px-6 py-2 rounded-xl text-xs font-bold bg-white shadow-sm text-indigo-600 transition-all flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 13h8V3H3z" />
+                    <path d="M13 21h8v-6h-8z" />
+                    <path d="M13 11h8V3h-8z" />
+                    <path d="M3 21h8v-4H3z" />
+                </svg>
+                <span>OVERALL DASHBOARD</span>
+            </button>
 
             <button onclick="switchTab('compare')" id="btn-compare"
-                class="px-6 py-2 rounded-xl text-xs font-bold text-slate-500 transition-all">SIZE COMPARISON</button>
+                class="px-6 py-2 rounded-xl text-xs font-bold text-slate-500 transition-all flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 20V10" />
+                    <path d="M10 20V4" />
+                    <path d="M16 20v-8" />
+                    <path d="M22 20v-4" />
+                </svg>
+                <span>STORAGE COMPARISON</span>
+            </button>
 
             <button onclick="switchTab('scan')" id="btn-scan"
-                class="px-6 py-2 rounded-xl text-xs font-bold text-slate-500 transition-all">LIBRARY EXPLORER</button>
-
-            <button onclick="switchTab('action-center')" id="btn-action-center"
-                class="px-6 py-2 rounded-xl text-xs font-bold text-slate-500 transition-all">ACTION CENTER</button>
+                class="px-6 py-2 rounded-xl text-xs font-bold text-slate-500 transition-all flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 7h18" />
+                    <path d="M5 7V5a2 2 0 0 1 2-2h3l2 2h5a2 2 0 0 1 2 2v2" />
+                    <path d="M5 7h14l-1.2 10.2A2 2 0 0 1 15.82 19H8.18a2 2 0 0 1-1.98-1.8L5 7Z" />
+                </svg>
+                <span>LIBRARY EXPLORER</span>
+            </button>
 
             <button onclick="switchTab('after-detail')" id="btn-after-detail"
-                class="px-6 py-2 rounded-xl text-xs font-bold text-slate-500 transition-all">VERSION INSIGHTS</button>
+                class="px-6 py-2 rounded-xl text-xs font-bold text-slate-500 transition-all flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 3a9 9 0 1 0 9 9" />
+                    <path d="M12 7v5l3 3" />
+                    <path d="M20 4v5h-5" />
+                </svg>
+                <span>VERSION ANALYSIS</span>
+            </button>
 
             <button onclick="switchTab('delete-version')" id="btn-delete-version"
-                class="px-6 py-2 rounded-xl text-xs font-bold text-slate-500 transition-all">CLEANUP LOGS</button>
+                class="px-6 py-2 rounded-xl text-xs font-bold text-slate-500 transition-all flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 6h18" />
+                    <path d="M8 6V4h8v2" />
+                    <path d="M19 6l-1 13a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                    <path d="M10 11v6" />
+                    <path d="M14 11v6" />
+                </svg>
+                <span>CLEANUP HISTORY</span>
+            </button>
+
+            <button onclick="switchTab('action-center')" id="btn-action-center"
+                class="px-6 py-2 rounded-xl text-xs font-bold text-slate-500 transition-all flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 12h7" />
+                    <path d="M14 6h7" />
+                    <path d="M14 18h7" />
+                    <circle cx="10" cy="12" r="3" />
+                    <circle cx="7" cy="6" r="2" />
+                    <circle cx="7" cy="18" r="2" />
+                </svg>
+                <span>ACTION CENTER</span>
+            </button>
+
+            <button onclick="switchTab('data-tools')" id="btn-data-tools"
+                class="px-6 py-2 rounded-xl text-xs font-bold text-slate-500 transition-all flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a1 1 0 0 0 0-1.4l-1.6-1.6a1 1 0 0 0-1.4 0z" />
+                    <path d="m16 8-8.5 8.5L6 20l3.5-1.5L18 10" />
+                    <path d="M4 20h16" />
+                </svg>
+                <span>DATA TOOLS</span>
+            </button>
         </nav>
-
-        <div class="flex flex-col items-center px-2">
-            <div class="flex gap-2">
-                <button onclick="openSharePointScanner()"
-                    class="bg-sky-500 text-white px-4 py-2 rounded-lg font-bold text-xs hover:bg-sky-600 transition-all flex items-center gap-2">
-                    <span>OPEN SHAREPOINT SCANNER</span>
-                </button>
-
-                <button id="sync-btn" onclick="handleSync()"
-                    class="bg-emerald-500 text-white px-4 py-2 rounded-lg font-bold text-xs hover:bg-emerald-600 transition-all flex items-center gap-2">
-                    <span id="sync-btn-text">REFRESH & SYNC NEW DATA</span>
-                    <span id="sync-badge"
-                        class="hidden min-w-[22px] h-[22px] px-1 rounded-full bg-white/20 text-white text-[10px] font-black items-center justify-center leading-none">0</span>
-                </button>
-
-                <button onclick="openImportModal()"
-                    class="bg-amber-500 text-white px-4 py-2 rounded-lg font-bold text-xs hover:bg-amber-600 transition-all flex items-center gap-2">
-                    <span>IMPORT CSV</span>
-                </button>
-            </div>
-            <span id="sync-status"
-                class="text-[9px] text-slate-400 font-bold mt-1 italic uppercase tracking-wide"></span>
-        </div>
     </header>
 
     <main class="flex-grow relative overflow-y-auto bg-slate-50">
@@ -433,6 +475,88 @@
                 </div>
             </div>
         </section>
+
+        <section id="page-data-tools" class="hidden p-8 space-y-6">
+            <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+                    <div>
+                        <h2 class="text-xl font-black text-slate-800 uppercase">Data Tools</h2>
+                        <p class="text-[11px] text-slate-400 font-bold uppercase mt-1">Source, import, and sync tools in one workspace</p>
+                    </div>
+                    <div class="bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3">
+                        <span id="sync-status"
+                            class="text-[10px] text-slate-500 font-bold italic uppercase tracking-wide block">No status</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-3xl border border-sky-200 shadow-sm space-y-4">
+                    <div class="w-14 h-14 rounded-2xl bg-sky-100 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+                            stroke="#0284c7" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 12h18" />
+                            <path d="M12 3v18" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-black text-slate-800 uppercase">Open SharePoint Scanner</h3>
+                        <p class="text-[11px] text-slate-500 mt-2 leading-relaxed">
+                            Launch the SharePoint scanner to inspect libraries and collect the latest source data.
+                        </p>
+                    </div>
+                    <button onclick="openSharePointScanner()"
+                        class="w-full bg-sky-500 text-white px-4 py-3 rounded-2xl font-bold text-xs hover:bg-sky-600 transition-all flex items-center justify-center gap-2">
+                        <span>OPEN SHAREPOINT SCANNER</span>
+                    </button>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl border border-emerald-200 shadow-sm space-y-4">
+                    <div class="w-14 h-14 rounded-2xl bg-emerald-100 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+                            stroke="#059669" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 2v6h-6" />
+                            <path d="M3 22v-6h6" />
+                            <path d="M20 8a8.5 8.5 0 0 0-14.7-3.3L3 8" />
+                            <path d="M4 16a8.5 8.5 0 0 0 14.7 3.3L21 16" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-black text-slate-800 uppercase">Refresh & Sync New Data</h3>
+                        <p class="text-[11px] text-slate-500 mt-2 leading-relaxed">
+                            Sync newly received files into the system and refresh the latest data pipeline.
+                        </p>
+                    </div>
+                    <button id="sync-btn" onclick="handleSync()"
+                        class="w-full bg-emerald-500 text-white px-4 py-3 rounded-2xl font-bold text-xs hover:bg-emerald-600 transition-all flex items-center justify-center gap-2">
+                        <span id="sync-btn-text">REFRESH & SYNC NEW DATA</span>
+                        <span id="sync-badge"
+                            class="hidden min-w-[22px] h-[22px] px-1 rounded-full bg-white/20 text-white text-[10px] font-black items-center justify-center leading-none">0</span>
+                    </button>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl border border-amber-200 shadow-sm space-y-4">
+                    <div class="w-14 h-14 rounded-2xl bg-amber-100 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+                            stroke="#d97706" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="17 8 12 3 7 8" />
+                            <line x1="12" y1="3" x2="12" y2="15" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-black text-slate-800 uppercase">Import CSV</h3>
+                        <p class="text-[11px] text-slate-500 mt-2 leading-relaxed">
+                            Import CSV source files into the queue for processing and system synchronization.
+                        </p>
+                    </div>
+                    <button onclick="openImportModal()"
+                        class="w-full bg-amber-500 text-white px-4 py-3 rounded-2xl font-bold text-xs hover:bg-amber-600 transition-all flex items-center justify-center gap-2">
+                        <span>IMPORT CSV</span>
+                    </button>
+                </div>
+            </div>
+        </section>
         <section id="page-compare" class="hidden p-8 space-y-4">
             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-6">
 
@@ -536,7 +660,7 @@
             <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
                 <div class="flex justify-between items-center mb-6">
                     <div>
-                        <h2 class="text-xl font-black text-slate-800 uppercase">After Scan Deep Analysis</h2>
+                        <h2 class="text-xl font-black text-slate-800 uppercase">Version Analysis</h2>
                         <p class="text-xs text-slate-400 font-bold uppercase">Comparing Current vs Versions Size by
                             Department</p>
                     </div>
@@ -573,7 +697,7 @@
             <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
                 <div class="flex justify-between items-center mb-8">
                     <div>
-                        <h2 class="text-xl font-black text-slate-800 uppercase leading-none">History of Deleted Versions
+                        <h2 class="text-xl font-black text-slate-800 uppercase leading-none">Cleanup History
                         </h2>
                         <p class="text-[10px] text-slate-400 font-bold uppercase mt-2 tracking-wide">Summary of space
                             recovered from version cleanup</p>

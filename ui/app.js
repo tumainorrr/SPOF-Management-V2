@@ -1396,6 +1396,7 @@ function switchTab(tabName) {
         'main': 'page-main',
         'scan': 'page-scan',
         'action-center': 'page-action-center',
+        'data-tools': 'page-data-tools',
         'compare': 'page-compare',
         'after-detail': 'page-after-detail',
         'delete-version': 'page-delete-version' // <--- เพิ่ม ID หน้าใหม่
@@ -1405,6 +1406,7 @@ function switchTab(tabName) {
         'main': 'btn-main',
         'scan': 'btn-scan',
         'action-center': 'btn-action-center',
+        'data-tools': 'btn-data-tools',
         'compare': 'btn-compare',
         'after-detail': 'btn-after-detail',
         'delete-version': 'btn-delete-version' // <--- เพิ่ม ID ปุ่มใหม่
