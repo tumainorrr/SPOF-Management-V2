@@ -35,6 +35,9 @@
             <button onclick="switchTab('scan')" id="btn-scan"
                 class="px-6 py-2 rounded-xl text-xs font-bold text-slate-500 transition-all">LIBRARY EXPLORER</button>
 
+            <button onclick="switchTab('action-center')" id="btn-action-center"
+                class="px-6 py-2 rounded-xl text-xs font-bold text-slate-500 transition-all">ACTION CENTER</button>
+
             <button onclick="switchTab('after-detail')" id="btn-after-detail"
                 class="px-6 py-2 rounded-xl text-xs font-bold text-slate-500 transition-all">VERSION INSIGHTS</button>
 
@@ -246,6 +249,189 @@
                         </button>
                     </div>
                 </div>
+            </div>
+        </section>
+        <section id="page-action-center" class="hidden p-8 space-y-6">
+            <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                    <div>
+                        <h2 class="text-xl font-black text-slate-800 uppercase">File Action Center</h2>
+                        <p class="text-[11px] text-slate-400 font-bold uppercase mt-1">Recommendation-only workspace for export and email-ready file review</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="openActionCenterSettingsModal()"
+                            class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-indigo-700 transition-all">
+                            FILTER SETTINGS
+                        </button>
+                        <button onclick="exportActionCenter('csv')"
+                            class="bg-slate-700 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-slate-800 transition-all">
+                            EXPORT CSV
+                        </button>
+                        <button onclick="exportActionCenter('xlsx')"
+                            class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-emerald-700 transition-all">
+                            EXPORT EXCEL
+                        </button>
+                        <button onclick="exportActionCenter('pdf')"
+                            class="bg-rose-600 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-rose-700 transition-all">
+                            EXPORT PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-6">
+                <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-400 block mb-2 uppercase">Category</label>
+                            <select id="action-cat-select" onchange="updateActionCenterFileList()"
+                                class="w-full bg-slate-100 border-none rounded-xl p-3 font-bold text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="Current_Scan_Detail" selected>Current Scan Detail</option>
+                                <option value="Previous_Scan_Detail">Previous Scan Detail</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-400 block mb-2 uppercase">Department</label>
+                            <select id="action-file-select" onchange="loadActionCenterData()"
+                                class="w-full bg-slate-100 border-none rounded-xl p-3 font-bold text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="md:col-span-2">
+                            <label class="text-[10px] font-bold text-slate-400 block mb-2 uppercase">Search</label>
+                            <input type="text" id="actionSearch" oninput="applyActionCenterFilters()" placeholder="Search file, folder, or reason..."
+                                class="w-full bg-slate-50 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-400 block mb-2 uppercase">Priority</label>
+                            <select id="action-priority-filter" onchange="applyActionCenterFilters()"
+                                class="w-full bg-slate-100 border-none rounded-xl p-3 font-bold text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="">All Priorities</option>
+                                <option value="High">High</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Low">Low</option>
+                                <option value="Very Low">Very Low</option>
+                                <option value="Info">Info</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-400 block mb-2 uppercase">Recommended Action</label>
+                            <select id="action-recommendation-filter" onchange="applyActionCenterFilters()"
+                                class="w-full bg-slate-100 border-none rounded-xl p-3 font-bold text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="">All Actions</option>
+                                <option value="Review for cleanup / move / compress">Review for cleanup / move / compress</option>
+                                <option value="Review version history / compress">Review version history / compress</option>
+                                <option value="Review duplicate candidates">Review duplicate candidates</option>
+                                <option value="Archive / move to cold storage review">Archive / move to cold storage review</option>
+                                <option value="Archive or remove after owner confirmation">Archive or remove after owner confirmation</option>
+                                <option value="Monitor">Monitor</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-400 block mb-2 uppercase">Duplicate</label>
+                            <select id="action-duplicate-filter" onchange="applyActionCenterFilters()"
+                                class="w-full bg-slate-100 border-none rounded-xl p-3 font-bold text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="">All</option>
+                                <option value="Yes">Duplicate Only</option>
+                                <option value="No">Non-Duplicate Only</option>
+                            </select>
+                        </div>
+                        <div class="flex items-end">
+                            <div id="action-center-info" class="text-[10px] font-black text-slate-400 uppercase">Found: 0 Items</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-6 gap-4">
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Matched Items</p>
+                    <p id="ac-count-all" class="text-2xl font-black text-slate-800">0</p>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-rose-200 shadow-sm">
+                    <p class="text-[10px] font-bold text-rose-400 uppercase tracking-wider">High</p>
+                    <p id="ac-count-high" class="text-2xl font-black text-rose-600">0</p>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-amber-200 shadow-sm">
+                    <p class="text-[10px] font-bold text-amber-400 uppercase tracking-wider">Medium</p>
+                    <p id="ac-count-medium" class="text-2xl font-black text-amber-600">0</p>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-sky-200 shadow-sm">
+                    <p class="text-[10px] font-bold text-sky-400 uppercase tracking-wider">Low</p>
+                    <p id="ac-count-low" class="text-2xl font-black text-sky-600">0</p>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Very Low</p>
+                    <p id="ac-count-very-low" class="text-2xl font-black text-slate-600">0</p>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-fuchsia-200 shadow-sm">
+                    <p class="text-[10px] font-bold text-fuchsia-400 uppercase tracking-wider">Duplicates</p>
+                    <p id="ac-count-duplicate" class="text-2xl font-black text-fuchsia-600">0</p>
+                </div>
+                </div>
+
+            <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-[620px]">
+                <div class="overflow-auto flex-grow custom-scroll">
+                    <table class="w-full min-w-[1960px] text-[11px] table-fixed">
+                        <colgroup>
+                            <col class="w-[56px]">
+                            <col class="w-[520px]">
+                            <col class="w-[84px]">
+                            <col class="w-[110px]">
+                            <col class="w-[110px]">
+                            <col class="w-[84px]">
+                            <col class="w-[100px]">
+                            <col class="w-[72px]">
+                            <col class="w-[110px]">
+                            <col class="w-[230px]">
+                            <col class="w-[160px]">
+                            <col class="w-[324px]">
+                        </colgroup>
+                        <thead class="bg-slate-50 sticky top-0 z-10 border-b border-slate-100">
+                            <tr>
+                                <th class="p-3 text-center font-bold">#</th>
+                                <th onclick="sortActionCenterBy('File Details')" class="p-3 text-left font-bold cursor-pointer hover:text-indigo-600">File Details</th>
+                                <th onclick="sortActionCenterBy('Ext')" class="p-3 text-center font-bold cursor-pointer hover:text-indigo-600">Ext</th>
+                                <th onclick="sortActionCenterBy('Versions MB')" class="p-3 text-right font-bold cursor-pointer hover:text-indigo-600">Versions MB</th>
+                                <th onclick="sortActionCenterBy('Total MB')" class="p-3 text-right font-bold cursor-pointer hover:text-indigo-600">Total MB</th>
+                                <th onclick="sortActionCenterBy('Age')" class="p-3 text-center font-bold cursor-pointer hover:text-indigo-600">Age</th>
+                                <th onclick="sortActionCenterBy('Duplicate')" class="p-3 text-center font-bold cursor-pointer hover:text-indigo-600">Duplicate</th>
+                                <th onclick="sortActionCenterBy('Count')" class="p-3 text-center font-bold cursor-pointer hover:text-indigo-600">Count</th>
+                                <th onclick="sortActionCenterBy('Priority')" class="p-3 text-center font-bold cursor-pointer hover:text-indigo-600">Priority</th>
+                                <th onclick="sortActionCenterBy('Recommended Action')" class="p-3 text-left font-bold cursor-pointer hover:text-indigo-600">Recommended Action</th>
+                                <th onclick="sortActionCenterBy('Last Original')" class="p-3 text-left font-bold cursor-pointer hover:text-indigo-600">Last Original</th>
+                                <th onclick="sortActionCenterBy('Reason')" class="p-3 text-left font-bold cursor-pointer hover:text-indigo-600">Reason</th>
+                            </tr>
+                        </thead>
+                        <tbody id="action-center-table"></tbody>
+                    </table>
+                </div>
+                <div class="p-4 border-t border-slate-100 flex justify-center items-center gap-4">
+                    <button id="actionPrevBtn" onclick="changeActionCenterPage(-1)"
+                        class="p-2 rounded-full hover:bg-slate-100 disabled:opacity-30">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M15 18l-6-6 6-6" />
+                        </svg>
+                    </button>
+                    <div class="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-xl">
+                        <span class="text-[10px] font-bold text-slate-400">PAGE</span>
+                        <input type="number" id="actionPageInput" onchange="goToActionCenterPage(this.value)"
+                            class="w-12 text-center font-black text-indigo-600" min="1" value="1">
+                        <span id="action-page-indicator" class="text-[10px] font-bold text-slate-400 uppercase">of 1</span>
+                    </div>
+                    <button id="actionNextBtn" onclick="changeActionCenterPage(1)"
+                        class="p-2 rounded-full hover:bg-slate-100 disabled:opacity-30">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M9 18l6-6-6-6" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
         </section>
         <section id="page-compare" class="hidden p-8 space-y-4">
             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-6">
@@ -505,6 +691,244 @@
             </div>
         </section>
     </main>
+
+    <div id="actionCenterSettingsModal"
+        class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[110] flex items-center justify-center p-4"
+        onclick="handleActionCenterSettingsBackdrop(event)">
+        <div class="bg-white w-full max-w-5xl max-h-[92vh] rounded-3xl shadow-2xl overflow-hidden border border-slate-200 flex flex-col">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <div>
+                    <h3 class="font-black text-slate-800 uppercase tracking-tight text-sm">Action Center Filter Settings</h3>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase mt-1">Saved to config file</p>
+                </div>
+                <button onclick="closeActionCenterSettingsModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="p-6 md:p-8 space-y-6 overflow-y-auto">
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3">
+                    <p class="text-[11px] font-bold text-slate-700">Threshold behavior</p>
+                    <p class="text-[11px] text-slate-500 mt-1">Leave a field blank to use <span class="font-bold">None</span>, which means that condition is disabled. Enter <span class="font-bold">0</span> only if zero is the real threshold you want to use.</p>
+                </div>
+
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 text-xs">
+                    <div class="bg-rose-50 border border-rose-200 rounded-2xl p-4 space-y-3">
+                        <div>
+                            <h4 class="text-sm font-black text-rose-700 uppercase">High Priority</h4>
+                            <p class="text-[11px] text-rose-600 mt-1">Triggered when any enabled condition is exceeded.</p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="block">
+                                <span class="block text-rose-500 font-bold uppercase mb-1">Versions MB</span>
+                                <input id="ac-high-versions-mb" type="number" step="1" min="0" placeholder="None"
+                                    class="w-full bg-white rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-rose-500">
+                            </label>
+                            <label class="block">
+                                <span class="block text-rose-500 font-bold uppercase mb-1">Min MB</span>
+                                <input id="ac-high-min-mb" type="number" step="1" min="0" placeholder="None"
+                                    class="w-full bg-white rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-rose-500">
+                            </label>
+                            <label class="block">
+                                <span class="block text-rose-500 font-bold uppercase mb-1">Max MB</span>
+                                <input id="ac-high-max-mb" type="number" step="1" min="0" placeholder="None"
+                                    class="w-full bg-white rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-rose-500">
+                            </label>
+                            <label class="block">
+                                <span class="block text-rose-500 font-bold uppercase mb-1">Age Years</span>
+                                <input id="ac-high-age-years" type="number" step="0.1" min="0" placeholder="None"
+                                    class="w-full bg-white rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-rose-500">
+                            </label>
+                            <label class="block col-span-2">
+                                <span class="block text-rose-500 font-bold uppercase mb-1">Total MB</span>
+                                <input id="ac-high-total-mb" type="number" step="1" min="0" placeholder="None"
+                                    class="w-full bg-white rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-rose-500">
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 space-y-3">
+                        <div>
+                            <h4 class="text-sm font-black text-amber-700 uppercase">Medium Priority</h4>
+                            <p class="text-[11px] text-amber-600 mt-1">Uses size range and/or versions size. You can leave Min or Max empty for an open-ended range.</p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="block">
+                                <span class="block text-amber-500 font-bold uppercase mb-1">Versions MB</span>
+                                <input id="ac-medium-versions-mb" type="number" step="1" min="0" placeholder="None"
+                                    class="w-full bg-white rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-amber-500">
+                            </label>
+                            <label class="block">
+                                <span class="block text-amber-500 font-bold uppercase mb-1">Min MB</span>
+                                <input id="ac-medium-min-mb" type="number" step="1" min="0" placeholder="None"
+                                    class="w-full bg-white rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-amber-500">
+                            </label>
+                            <label class="block">
+                                <span class="block text-amber-500 font-bold uppercase mb-1">Max MB</span>
+                                <input id="ac-medium-max-mb" type="number" step="1" min="0" placeholder="None"
+                                    class="w-full bg-white rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-amber-500">
+                            </label>
+                            <label class="block">
+                                <span class="block text-amber-500 font-bold uppercase mb-1">Age Years</span>
+                                <input id="ac-medium-age-years" type="number" step="0.1" min="0" placeholder="None"
+                                    class="w-full bg-white rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-amber-500">
+                            </label>
+                            <label class="block col-span-2">
+                                <span class="block text-amber-500 font-bold uppercase mb-1">Total MB</span>
+                                <input id="ac-medium-total-mb" type="number" step="1" min="0" placeholder="None"
+                                    class="w-full bg-white rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-amber-500">
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="bg-sky-50 border border-sky-200 rounded-2xl p-4 space-y-3">
+                        <div>
+                            <h4 class="text-sm font-black text-sky-700 uppercase">Low Priority</h4>
+                            <p class="text-[11px] text-sky-600 mt-1">All enabled conditions in this block must match together.</p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="block">
+                                <span class="block text-sky-500 font-bold uppercase mb-1">Versions MB</span>
+                                <input id="ac-low-versions-mb" type="number" step="1" min="0" placeholder="None"
+                                    class="w-full bg-white rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500">
+                            </label>
+                            <label class="block">
+                                <span class="block text-sky-500 font-bold uppercase mb-1">Min MB</span>
+                                <input id="ac-low-min-mb" type="number" step="1" min="0" placeholder="None"
+                                    class="w-full bg-white rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500">
+                            </label>
+                            <label class="block">
+                                <span class="block text-sky-500 font-bold uppercase mb-1">Max MB</span>
+                                <input id="ac-low-max-mb" type="number" step="1" min="0" placeholder="None"
+                                    class="w-full bg-white rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500">
+                            </label>
+                            <label class="block">
+                                <span class="block text-sky-500 font-bold uppercase mb-1">Age Years</span>
+                                <input id="ac-low-age-years" type="number" step="0.1" min="0" placeholder="None"
+                                    class="w-full bg-white rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500">
+                            </label>
+                            <label class="block col-span-2">
+                                <span class="block text-sky-500 font-bold uppercase mb-1">Total MB</span>
+                                <input id="ac-low-total-mb" type="number" step="1" min="0" placeholder="None"
+                                    class="w-full bg-white rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500">
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+                        <div>
+                            <h4 class="text-sm font-black text-slate-700 uppercase">Very Low Priority</h4>
+                            <p class="text-[11px] text-slate-500 mt-1">Use this for very old items that should be reviewed for archive or retirement.</p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="block">
+                                <span class="block text-slate-500 font-bold uppercase mb-1">Versions MB</span>
+                                <input id="ac-very-low-versions-mb" type="number" step="1" min="0" placeholder="None"
+                                    class="w-full bg-white rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-slate-500">
+                            </label>
+                            <label class="block">
+                                <span class="block text-slate-500 font-bold uppercase mb-1">Min MB</span>
+                                <input id="ac-very-low-min-mb" type="number" step="1" min="0" placeholder="None"
+                                    class="w-full bg-white rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-slate-500">
+                            </label>
+                            <label class="block">
+                                <span class="block text-slate-500 font-bold uppercase mb-1">Max MB</span>
+                                <input id="ac-very-low-max-mb" type="number" step="1" min="0" placeholder="None"
+                                    class="w-full bg-white rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-slate-500">
+                            </label>
+                            <label class="block">
+                                <span class="block text-slate-500 font-bold uppercase mb-1">Age Years</span>
+                                <input id="ac-very-low-age-years" type="number" step="0.1" min="0" placeholder="None"
+                                    class="w-full bg-white rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-slate-500">
+                            </label>
+                            <label class="block col-span-2">
+                                <span class="block text-slate-500 font-bold uppercase mb-1">Total MB</span>
+                                <input id="ac-very-low-total-mb" type="number" step="1" min="0" placeholder="None"
+                                    class="w-full bg-white rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-slate-500">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 text-xs">
+                    <label class="block">
+                        <span class="block text-slate-400 font-bold uppercase mb-1">PDF Focus Topics</span>
+                        <input id="ac-pdf-focus-items-limit" type="number" step="1" min="1" max="50"
+                            class="w-full bg-slate-100 rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500">
+                    </label>
+                    <label class="block">
+                        <span class="block text-slate-400 font-bold uppercase mb-2">PDF Duplicate Layout</span>
+                        <div class="flex items-center justify-between bg-slate-100 rounded-xl px-4 py-3">
+                            <div>
+                                <div class="text-sm font-bold text-slate-700">Group duplicates into one topic</div>
+                                <div class="text-[11px] text-slate-500">Duplicate rows will appear in one main block with sub-items inside the PDF.</div>
+                            </div>
+                            <input id="ac-pdf-group-duplicates" type="checkbox" class="h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500">
+                        </div>
+                    </label>
+                </div>
+
+                <p class="text-[11px] text-slate-500 leading-relaxed">
+                    Duplicate detection in this tab uses high-confidence metadata matching from the report. It does not delete, move, or compress files automatically.
+                </p>
+            </div>
+
+            <div class="p-4 bg-slate-50 text-center border-t border-slate-100 flex items-center justify-between gap-2">
+                <button onclick="closeActionCenterSettingsModal()"
+                    class="text-[10px] font-black text-slate-400 hover:text-slate-600 uppercase tracking-widest px-4 py-2">Cancel / Close</button>
+                <div class="flex items-center gap-2">
+                    <button onclick="resetActionCenterSettings()"
+                        class="bg-white text-slate-600 px-4 py-2 rounded-xl text-xs font-bold border border-slate-200 hover:bg-slate-50 transition-all">
+                        Reset Defaults
+                    </button>
+                    <button onclick="saveActionCenterSettings(true)"
+                        class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-indigo-700 transition-all">
+                        Save Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="actionCenterResetConfirmModal"
+        class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[120] flex items-center justify-center p-4"
+        onclick="handleActionCenterResetConfirmBackdrop(event)">
+        <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden border border-slate-200">
+            <div class="p-6 border-b border-slate-100 bg-slate-50">
+                <div class="flex items-start gap-4">
+                    <div class="bg-rose-100 w-12 h-12 rounded-2xl flex items-center justify-center shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="#e11d48" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 9v4" />
+                            <path d="M12 17h.01" />
+                            <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="font-black text-slate-800 uppercase tracking-tight text-sm">Reset Default Settings</h3>
+                        <p class="text-[11px] text-slate-500 mt-2 leading-relaxed">
+                            This will restore all Action Center filter settings to the default values and overwrite the current saved config.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-5 bg-white flex items-center justify-end gap-2">
+                <button onclick="resolveActionCenterResetConfirm(false)"
+                    class="bg-white text-slate-600 px-4 py-2 rounded-xl text-xs font-bold border border-slate-200 hover:bg-slate-50 transition-all">
+                    Cancel
+                </button>
+                <button onclick="resolveActionCenterResetConfirm(true)"
+                    class="bg-rose-600 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-rose-700 transition-all">
+                    Reset Defaults
+                </button>
+            </div>
+        </div>
+    </div>
 
     <div id="importModal"
         class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">

@@ -19,6 +19,14 @@ let myPolicyChart = null; // ตัวแปรเก็บ Instance ของ�
 // 1. เริ่มต้นโปรแกรม
 const DEFAULT_SYNC_BUTTON_TEXT = "REFRESH & SYNC NEW DATA";
 let syncQueuePollTimer = null;
+let actionCenterSettings = null;
+let actionCenterRawRows = [];
+let actionCenterFilteredRows = [];
+let actionCenterCurrentPage = 1;
+const actionCenterPageSize = 100;
+let actionCenterSort = { key: null, asc: true };
+let actionCenterDuplicateDetectionAvailable = true;
+let actionCenterResetConfirmResolver = null;
 
 window.onload = function () {
     const check = () => {
@@ -37,6 +45,7 @@ window.addEventListener('pywebviewready', function () {
 async function init() {
     switchTab('main');
     await loadMainData();
+    await loadActionCenterSettings();
     await refreshSyncQueueStatus();
     setTimeout(() => refreshSyncQueueStatus(), 300);
     startSyncQueuePolling();
@@ -406,6 +415,14 @@ function formatDisplayDateTime(value) {
     return `${dd}-${mm}-${yyyy} ${hh}:${mi}:${ss}`;
 }
 
+function buildSharePointFolderUrl(folderPath) {
+    const raw = (folderPath || '').toString().trim();
+    if (!raw || raw === '-') return '-';
+    if (/^https?:\/\//i.test(raw)) return raw;
+    if (raw.startsWith('/')) return `https://accor.sharepoint.com${raw}`;
+    return `https://accor.sharepoint.com/${raw}`;
+}
+
 function renderScanPage() {
     const totalPages = Math.ceil(filteredData.length / pageSize) || 1;
     const start = (currentPage - 1) * pageSize;
@@ -416,7 +433,7 @@ function renderScanPage() {
         <tr class="hover:bg-slate-50 border-b border-slate-100 table-fixed w-full">
             <td class="p-3 text-center text-slate-400 font-mono">${start + idx + 1}</td>
             <td class="p-3 overflow-hidden">
-                <div class="text-[9px] text-slate-400 truncate w-full">${r['Folder Path'] || '-'}</div>
+                <div class="text-[9px] text-slate-400 truncate w-full" title="${buildSharePointFolderUrl(r['Folder Path'])}">${buildSharePointFolderUrl(r['Folder Path'])}</div>
                 <div class="font-bold text-slate-700 text-[11px] truncate w-full" title="${r['File Name']}">${r['File Name'] || '-'}</div>
             </td>
             <td class="p-3 text-center font-bold text-slate-500">${r['Extension'] || '-'}</td>
@@ -440,6 +457,784 @@ function renderScanPage() {
 }
 
 // 1. ฟังก์ชันดึงรายชื่อแผนกมาโชว์ในหน้า Comparison
+async function loadActionCenterSettings() {
+    try {
+        const response = await pywebview.api.get_action_center_settings();
+        if (!response || !response.success) {
+            throw new Error(response && response.error ? response.error : "Unable to load action center settings.");
+        }
+
+        actionCenterSettings = response.settings || {};
+        fillActionCenterSettingsForm();
+    } catch (error) {
+        console.error("loadActionCenterSettings error:", error);
+    }
+}
+
+function openActionCenterSettingsModal() {
+    fillActionCenterSettingsForm();
+    const modal = document.getElementById('actionCenterSettingsModal');
+    if (modal) modal.classList.remove('hidden');
+}
+
+function closeActionCenterSettingsModal() {
+    const modal = document.getElementById('actionCenterSettingsModal');
+    if (modal) modal.classList.add('hidden');
+}
+
+function handleActionCenterSettingsBackdrop(event) {
+    if (event.target?.id === 'actionCenterSettingsModal') {
+        closeActionCenterSettingsModal();
+    }
+}
+
+function openActionCenterResetConfirmModal() {
+    const modal = document.getElementById('actionCenterResetConfirmModal');
+    if (modal) modal.classList.remove('hidden');
+}
+
+function closeActionCenterResetConfirmModal() {
+    const modal = document.getElementById('actionCenterResetConfirmModal');
+    if (modal) modal.classList.add('hidden');
+}
+
+function handleActionCenterResetConfirmBackdrop(event) {
+    if (event.target?.id === 'actionCenterResetConfirmModal') {
+        resolveActionCenterResetConfirm(false);
+    }
+}
+
+function resolveActionCenterResetConfirm(confirmed) {
+    closeActionCenterResetConfirmModal();
+    if (actionCenterResetConfirmResolver) {
+        actionCenterResetConfirmResolver(confirmed);
+        actionCenterResetConfirmResolver = null;
+    }
+}
+
+function requestActionCenterResetConfirmation() {
+    return new Promise((resolve) => {
+        actionCenterResetConfirmResolver = resolve;
+        openActionCenterResetConfirmModal();
+    });
+}
+
+function fillActionCenterSettingsForm() {
+    if (!actionCenterSettings) return;
+
+    const fields = {
+        'ac-high-versions-mb': actionCenterSettings.high_versions_mb,
+        'ac-high-min-mb': actionCenterSettings.high_min_mb,
+        'ac-high-max-mb': actionCenterSettings.high_max_mb,
+        'ac-high-age-years': actionCenterSettings.high_age_years,
+        'ac-high-total-mb': actionCenterSettings.high_total_mb,
+        'ac-medium-versions-mb': actionCenterSettings.medium_versions_mb,
+        'ac-medium-min-mb': actionCenterSettings.medium_min_mb,
+        'ac-medium-max-mb': actionCenterSettings.medium_max_mb,
+        'ac-medium-age-years': actionCenterSettings.medium_age_years,
+        'ac-medium-total-mb': actionCenterSettings.medium_total_mb,
+        'ac-low-versions-mb': actionCenterSettings.low_versions_mb,
+        'ac-low-min-mb': actionCenterSettings.low_min_mb,
+        'ac-low-max-mb': actionCenterSettings.low_max_mb,
+        'ac-low-age-years': actionCenterSettings.low_age_years,
+        'ac-low-total-mb': actionCenterSettings.low_total_mb,
+        'ac-very-low-versions-mb': actionCenterSettings.very_low_versions_mb,
+        'ac-very-low-min-mb': actionCenterSettings.very_low_min_mb,
+        'ac-very-low-max-mb': actionCenterSettings.very_low_max_mb,
+        'ac-very-low-age-years': actionCenterSettings.very_low_age_years,
+        'ac-very-low-total-mb': actionCenterSettings.very_low_total_mb,
+        'ac-pdf-focus-items-limit': actionCenterSettings.pdf_focus_items_limit,
+    };
+
+    Object.entries(fields).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (!element) return;
+        if (element.type === 'checkbox') {
+            element.checked = !!value;
+            return;
+        }
+        element.value = value ?? '';
+    });
+
+    const duplicateToggle = document.getElementById('ac-pdf-group-duplicates');
+    if (duplicateToggle) duplicateToggle.checked = !!actionCenterSettings.pdf_group_duplicate_topics;
+}
+
+function readActionCenterSettingsFromForm() {
+    const getNullableValue = (id) => {
+        const raw = document.getElementById(id)?.value;
+        if (raw === undefined || raw === null) return null;
+        const text = raw.toString().trim();
+        if (!text) return null;
+        const parsed = parseFloat(text);
+        return Number.isFinite(parsed) ? parsed : null;
+    };
+    const getIntValue = (id, fallback) => {
+        const parsed = parseInt(document.getElementById(id)?.value || fallback, 10);
+        return Number.isFinite(parsed) ? parsed : fallback;
+    };
+
+    return {
+        high_versions_mb: getNullableValue('ac-high-versions-mb'),
+        high_min_mb: getNullableValue('ac-high-min-mb'),
+        high_max_mb: getNullableValue('ac-high-max-mb'),
+        high_age_years: getNullableValue('ac-high-age-years'),
+        high_total_mb: getNullableValue('ac-high-total-mb'),
+        medium_versions_mb: getNullableValue('ac-medium-versions-mb'),
+        medium_min_mb: getNullableValue('ac-medium-min-mb'),
+        medium_max_mb: getNullableValue('ac-medium-max-mb'),
+        medium_age_years: getNullableValue('ac-medium-age-years'),
+        medium_total_mb: getNullableValue('ac-medium-total-mb'),
+        low_versions_mb: getNullableValue('ac-low-versions-mb'),
+        low_min_mb: getNullableValue('ac-low-min-mb'),
+        low_max_mb: getNullableValue('ac-low-max-mb'),
+        low_age_years: getNullableValue('ac-low-age-years'),
+        low_total_mb: getNullableValue('ac-low-total-mb'),
+        very_low_versions_mb: getNullableValue('ac-very-low-versions-mb'),
+        very_low_min_mb: getNullableValue('ac-very-low-min-mb'),
+        very_low_max_mb: getNullableValue('ac-very-low-max-mb'),
+        very_low_age_years: getNullableValue('ac-very-low-age-years'),
+        very_low_total_mb: getNullableValue('ac-very-low-total-mb'),
+        pdf_focus_items_limit: getIntValue('ac-pdf-focus-items-limit', 12),
+        pdf_group_duplicate_topics: !!document.getElementById('ac-pdf-group-duplicates')?.checked,
+    };
+}
+
+async function saveActionCenterSettings(closeAfterSave = false) {
+    try {
+        const response = await pywebview.api.save_action_center_settings(readActionCenterSettingsFromForm());
+        if (!response || !response.success) {
+            throw new Error(response && response.error ? response.error : "Unable to save settings.");
+        }
+
+        actionCenterSettings = response.settings || readActionCenterSettingsFromForm();
+        fillActionCenterSettingsForm();
+        if (actionCenterRawRows.length > 0) applyActionCenterFilters();
+        if (closeAfterSave) {
+            closeActionCenterSettingsModal();
+        }
+        alert("Action Center settings saved.");
+    } catch (error) {
+        console.error("saveActionCenterSettings error:", error);
+        alert("Unable to save Action Center settings.");
+    }
+}
+
+async function resetActionCenterSettings() {
+    try {
+        const confirmed = await requestActionCenterResetConfirmation();
+        if (!confirmed) return;
+
+        const response = await pywebview.api.reset_action_center_settings();
+        if (!response || !response.success) {
+            throw new Error(response && response.error ? response.error : "Unable to reset settings.");
+        }
+
+        actionCenterSettings = response.settings || {};
+        fillActionCenterSettingsForm();
+        if (actionCenterRawRows.length > 0) applyActionCenterFilters();
+        alert("Action Center settings reset to default.");
+    } catch (error) {
+        console.error("resetActionCenterSettings error:", error);
+        alert("Unable to reset Action Center settings.");
+    }
+}
+
+async function updateActionCenterFileList() {
+    const category = document.getElementById('action-cat-select')?.value || 'Current_Scan_Detail';
+    const select = document.getElementById('action-file-select');
+    if (!select) return;
+
+    const previousValue = select.value;
+    select.innerHTML = '<option value="">Loading Departments...</option>';
+
+    try {
+        const departments = await pywebview.api.get_available_departments(category);
+        select.innerHTML = '<option value="">-- Select Department --</option>';
+
+        (departments || []).forEach((dept) => {
+            const option = document.createElement('option');
+            option.value = dept;
+            option.textContent = `Department: ${dept}`;
+            select.appendChild(option);
+        });
+
+        if (previousValue && departments.includes(previousValue)) {
+            select.value = previousValue;
+            await loadActionCenterData();
+        } else if (departments && departments.length > 0) {
+            select.value = departments[0];
+            await loadActionCenterData();
+        } else {
+            resetActionCenterData();
+        }
+    } catch (error) {
+        console.error("updateActionCenterFileList error:", error);
+        select.innerHTML = '<option value="">Error loading departments</option>';
+    }
+}
+
+function resetActionCenterData() {
+    actionCenterRawRows = [];
+    actionCenterFilteredRows = [];
+    actionCenterCurrentPage = 1;
+    renderActionCenterSummary([]);
+    renderActionCenterTable();
+}
+
+async function loadActionCenterData() {
+    const category = document.getElementById('action-cat-select')?.value || 'Current_Scan_Detail';
+    const deptName = document.getElementById('action-file-select')?.value || '';
+
+    if (!deptName) {
+        resetActionCenterData();
+        return;
+    }
+
+    try {
+        const data = await pywebview.api.get_latest_scan_data(category, deptName);
+        if (!data || data.error) {
+            throw new Error(data && data.error ? data.error : "Unable to load scan detail.");
+        }
+
+        actionCenterRawRows = data;
+        actionCenterCurrentPage = 1;
+        applyActionCenterFilters();
+    } catch (error) {
+        console.error("loadActionCenterData error:", error);
+        resetActionCenterData();
+        alert("Unable to load Action Center data.");
+    }
+}
+
+function parseActionCenterNumber(value) {
+    const parsed = parseFloat(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function parseOptionalActionCenterNumber(value) {
+    if (value === undefined || value === null) return null;
+    const text = value.toString().trim();
+    if (!text) return null;
+    const parsed = parseFloat(text);
+    return Number.isFinite(parsed) ? parsed : null;
+}
+
+function buildActionCenterPriorityConfig(settings, prefix) {
+    return {
+        versionsMB: parseOptionalActionCenterNumber(settings[`${prefix}_versions_mb`]),
+        minMB: parseOptionalActionCenterNumber(settings[`${prefix}_min_mb`]),
+        maxMB: parseOptionalActionCenterNumber(settings[`${prefix}_max_mb`]),
+        ageYears: parseOptionalActionCenterNumber(settings[`${prefix}_age_years`]),
+        totalMB: parseOptionalActionCenterNumber(settings[`${prefix}_total_mb`]),
+    };
+}
+
+function buildActionCenterRangeReason(minMB, maxMB) {
+    if (minMB !== null && maxMB !== null) {
+        return `Total Size between ${minMB} MB and ${maxMB} MB`;
+    }
+    if (minMB !== null) {
+        return `Total Size >= ${minMB} MB`;
+    }
+    if (maxMB !== null) {
+        return `Total Size <= ${maxMB} MB`;
+    }
+    return '';
+}
+
+function evaluateActionCenterPriorityAny(totalMB, versionsMB, ageYears, config) {
+    const reasons = [];
+    const rangeEnabled = config.minMB !== null || config.maxMB !== null;
+    const matchesRange = (!rangeEnabled)
+        ? false
+        : (config.minMB === null || totalMB >= config.minMB) && (config.maxMB === null || totalMB <= config.maxMB);
+
+    if (config.totalMB !== null && totalMB > config.totalMB) {
+        reasons.push(`Total Size > ${config.totalMB} MB`);
+    }
+    if (config.versionsMB !== null && versionsMB > config.versionsMB) {
+        reasons.push(`Versions Size > ${config.versionsMB} MB`);
+    }
+    if (config.ageYears !== null && ageYears !== null && ageYears >= config.ageYears) {
+        reasons.push(`Last Original older than ${config.ageYears} years`);
+    }
+    if (matchesRange) {
+        reasons.push(buildActionCenterRangeReason(config.minMB, config.maxMB));
+    }
+
+    return reasons;
+}
+
+function evaluateActionCenterPriorityAll(totalMB, versionsMB, ageYears, config) {
+    const checks = [];
+    const rangeEnabled = config.minMB !== null || config.maxMB !== null;
+    const rangeMatched = (!rangeEnabled)
+        ? false
+        : (config.minMB === null || totalMB >= config.minMB) && (config.maxMB === null || totalMB <= config.maxMB);
+
+    if (config.totalMB !== null) {
+        checks.push({
+            matched: totalMB > config.totalMB,
+            label: `Total Size > ${config.totalMB} MB`,
+        });
+    }
+    if (config.versionsMB !== null) {
+        checks.push({
+            matched: versionsMB > config.versionsMB,
+            label: `Versions Size > ${config.versionsMB} MB`,
+        });
+    }
+    if (config.ageYears !== null) {
+        checks.push({
+            matched: ageYears !== null && ageYears >= config.ageYears,
+            label: `Last Original older than ${config.ageYears} years`,
+        });
+    }
+    if (rangeEnabled) {
+        checks.push({
+            matched: rangeMatched,
+            label: buildActionCenterRangeReason(config.minMB, config.maxMB),
+        });
+    }
+
+    if (!checks.length || !checks.every((check) => check.matched)) {
+        return [];
+    }
+    return checks.map((check) => check.label);
+}
+
+function parseActionCenterDate(value) {
+    const raw = (value || '').toString().trim();
+    if (!raw || raw === '-') return null;
+
+    let match = raw.match(/^(\d{2})-(\d{2})-(\d{4})[ T](\d{2}):(\d{2})(?::(\d{2}))?$/);
+    if (match) {
+        const [, dd, mm, yyyy, hh, mi, ss = '00'] = match;
+        return new Date(`${yyyy}-${mm}-${dd}T${hh}:${mi}:${ss}`);
+    }
+
+    match = raw.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?$/);
+    if (match) {
+        const [, yyyy, mm, dd, hh, mi, ss = '00'] = match;
+        return new Date(`${yyyy}-${mm}-${dd}T${hh}:${mi}:${ss}`);
+    }
+
+    const parsed = new Date(raw);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function calculateActionCenterAgeYears(value) {
+    const date = parseActionCenterDate(value);
+    if (!date) return null;
+
+    const diffMs = Date.now() - date.getTime();
+    return diffMs > 0 ? diffMs / (365.25 * 24 * 60 * 60 * 1000) : 0;
+}
+
+function normalizeDuplicateText(value) {
+    return (value || '').toString().trim().toLowerCase();
+}
+
+function hasHighConfidenceDuplicateMetadata(rows) {
+    const sampleRow = (rows || []).find((row) => row && typeof row === 'object');
+    if (!sampleRow) return false;
+
+    return [
+        'Last Datetime of Original Version',
+        'First Datetime of History Version',
+    ].every((key) => Object.prototype.hasOwnProperty.call(sampleRow, key));
+}
+
+function normalizeDuplicateDateKey(value) {
+    const date = parseActionCenterDate(value);
+    if (!date) return '-';
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    const hh = String(date.getHours()).padStart(2, '0');
+    const mi = String(date.getMinutes()).padStart(2, '0');
+    const ss = String(date.getSeconds()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
+}
+
+function buildHighConfidenceDuplicateSignature(row) {
+    return [
+        normalizeDuplicateText(row['File Name']),
+        normalizeDuplicateText(row['Extension']),
+        parseActionCenterNumber(row['Current Size (MB)']).toFixed(3),
+        parseActionCenterNumber(row['Versions Size (MB)']).toFixed(3),
+        parseActionCenterNumber(row['Total Size (MB)']).toFixed(3),
+        String(parseInt(row['Version Count'] || 0, 10) || 0),
+        normalizeDuplicateDateKey(row['Last Datetime of Original Version']),
+        normalizeDuplicateDateKey(row['First Datetime of History Version']),
+    ].join('|');
+}
+
+function buildDuplicateIdentityKey(row) {
+    return [
+        normalizeDuplicateText(row['Folder Path']),
+        normalizeDuplicateText(row['File Name']),
+    ].join('|');
+}
+
+function getActionCenterPriorityColor(priority) {
+    const colorMap = {
+        'High': 'bg-rose-100 text-rose-700',
+        'Medium': 'bg-amber-100 text-amber-700',
+        'Low': 'bg-sky-100 text-sky-700',
+        'Very Low': 'bg-slate-200 text-slate-700',
+        'Info': 'bg-emerald-100 text-emerald-700',
+    };
+    return colorMap[priority] || colorMap.Info;
+}
+
+function getActionCenterSortValue(row, key) {
+    if (key === 'File Details') {
+        return `${row['Folder Path'] || ''} ${row['File Name'] || ''}`.toLowerCase();
+    }
+    if (key === 'Ext') {
+        return (row['Extension'] || '').toString().toLowerCase();
+    }
+    if (key === 'Versions MB') {
+        return parseActionCenterNumber(row['Versions Size (MB)']);
+    }
+    if (key === 'Total MB') {
+        return parseActionCenterNumber(row['Total Size (MB)']);
+    }
+    if (key === 'Age') {
+        const age = parseFloat(row['Age (Years)']);
+        return Number.isFinite(age) ? age : -1;
+    }
+    if (key === 'Duplicate') {
+        return (row['Duplicate Candidate'] || '').toString().toLowerCase();
+    }
+    if (key === 'Count') {
+        return parseInt(row['Duplicate Count'] || 0, 10) || 0;
+    }
+    if (key === 'Priority') {
+        const priorityOrder = { High: 4, Medium: 3, Low: 2, 'Very Low': 1, Info: 0 };
+        return priorityOrder[row['Priority']] ?? -1;
+    }
+    if (key === 'Recommended Action') {
+        return (row['Recommended Action'] || '').toString().toLowerCase();
+    }
+    if (key === 'Last Original') {
+        const date = parseActionCenterDate(row['Last Datetime of Original Version']);
+        return date ? date.getTime() : 0;
+    }
+    if (key === 'Reason') {
+        return (row['Reason'] || '').toString().toLowerCase();
+    }
+    return (row[key] || '').toString().toLowerCase();
+}
+
+function sortActionCenterBy(key) {
+    if (actionCenterSort.key === key) {
+        actionCenterSort.asc = !actionCenterSort.asc;
+    } else {
+        actionCenterSort.key = key;
+        actionCenterSort.asc = true;
+    }
+
+    actionCenterCurrentPage = 1;
+    applyActionCenterFilters();
+}
+
+function sortActionCenterRows(rows) {
+    if (!actionCenterSort.key) return rows;
+
+    rows.sort((a, b) => {
+        const valueA = getActionCenterSortValue(a, actionCenterSort.key);
+        const valueB = getActionCenterSortValue(b, actionCenterSort.key);
+
+        if (typeof valueA === 'number' && typeof valueB === 'number') {
+            return actionCenterSort.asc ? valueA - valueB : valueB - valueA;
+        }
+
+        const normalizedA = (valueA ?? '').toString();
+        const normalizedB = (valueB ?? '').toString();
+        return actionCenterSort.asc
+            ? normalizedA.localeCompare(normalizedB)
+            : normalizedB.localeCompare(normalizedA);
+    });
+
+    return rows;
+}
+
+function analyzeActionCenterRows(rows) {
+    const settings = actionCenterSettings || readActionCenterSettingsFromForm();
+    const highConfig = buildActionCenterPriorityConfig(settings, 'high');
+    const mediumConfig = buildActionCenterPriorityConfig(settings, 'medium');
+    const lowConfig = buildActionCenterPriorityConfig(settings, 'low');
+    const veryLowConfig = buildActionCenterPriorityConfig(settings, 'very_low');
+    const allRows = rows || [];
+    const canDetectDuplicates = hasHighConfidenceDuplicateMetadata(allRows);
+    actionCenterDuplicateDetectionAvailable = canDetectDuplicates;
+    const signatureIdentitySets = {};
+    const signatureGroupIds = {};
+    let nextGroupIndex = 1;
+
+    if (canDetectDuplicates) {
+        allRows.forEach((row) => {
+            const signature = buildHighConfidenceDuplicateSignature(row);
+            if (!signatureIdentitySets[signature]) {
+                signatureIdentitySets[signature] = new Set();
+            }
+            signatureIdentitySets[signature].add(buildDuplicateIdentityKey(row));
+        });
+
+        Object.entries(signatureIdentitySets).forEach(([signature, identitySet]) => {
+            if (identitySet.size > 1) {
+                signatureGroupIds[signature] = `DUP-${String(nextGroupIndex).padStart(4, '0')}`;
+                nextGroupIndex += 1;
+            }
+        });
+    }
+
+    return allRows.map((row) => {
+        const totalMB = parseActionCenterNumber(row['Total Size (MB)']);
+        const versionsMB = parseActionCenterNumber(row['Versions Size (MB)']);
+        const ageYears = calculateActionCenterAgeYears(row['Last Datetime of Original Version']);
+        const reasons = [];
+        let priority = 'Info';
+        let recommendedAction = 'Monitor';
+        const duplicateSignature = canDetectDuplicates ? buildHighConfidenceDuplicateSignature(row) : null;
+        const duplicateCount = duplicateSignature ? (signatureIdentitySets[duplicateSignature]?.size || 1) : 1;
+        const isDuplicate = canDetectDuplicates && duplicateCount > 1;
+        const duplicateGroupId = duplicateSignature ? (signatureGroupIds[duplicateSignature] || '-') : '-';
+
+        const highReasons = evaluateActionCenterPriorityAny(totalMB, versionsMB, ageYears, highConfig);
+        const mediumReasons = evaluateActionCenterPriorityAny(totalMB, versionsMB, ageYears, mediumConfig);
+        const veryLowReasons = evaluateActionCenterPriorityAll(totalMB, versionsMB, ageYears, veryLowConfig);
+        const lowReasons = evaluateActionCenterPriorityAll(totalMB, versionsMB, ageYears, lowConfig);
+
+        if (highReasons.length > 0) {
+            priority = 'High';
+            recommendedAction = 'Review for cleanup / move / compress';
+            reasons.push(...highReasons);
+        } else if (mediumReasons.length > 0) {
+            priority = 'Medium';
+            recommendedAction = 'Review version history / compress';
+            reasons.push(...mediumReasons);
+        } else if (veryLowReasons.length > 0) {
+            priority = 'Very Low';
+            recommendedAction = 'Archive or remove after owner confirmation';
+            reasons.push(...veryLowReasons);
+        } else if (lowReasons.length > 0) {
+            priority = 'Low';
+            recommendedAction = 'Archive / move to cold storage review';
+            reasons.push(...lowReasons);
+        } else {
+            reasons.push('Within monitoring threshold');
+        }
+
+        if (isDuplicate) {
+            reasons.unshift(`High-confidence duplicate metadata match (${duplicateCount} files in ${duplicateGroupId})`);
+            if (priority === 'Info') {
+                recommendedAction = recommendedAction === 'Monitor'
+                    ? 'Review duplicate candidates'
+                    : `${recommendedAction} + duplicate review`;
+            } else if (!recommendedAction.includes('duplicate')) {
+                recommendedAction = `${recommendedAction} + duplicate review`;
+            }
+        }
+
+        return {
+            ...row,
+            'Age (Years)': ageYears === null ? '-' : ageYears.toFixed(1),
+            'Duplicate Candidate': isDuplicate ? 'Yes' : 'No',
+            'Duplicate Confidence': isDuplicate ? 'High' : '-',
+            'Duplicate Count': duplicateCount,
+            'Duplicate Group': duplicateGroupId,
+            'Priority': priority,
+            'Recommended Action': recommendedAction,
+            'Reason': reasons.join(' | '),
+        };
+    });
+}
+
+function applyActionCenterFilters() {
+    const searchTerm = (document.getElementById('actionSearch')?.value || '').toLowerCase().trim();
+    const priorityFilter = document.getElementById('action-priority-filter')?.value || '';
+    const actionFilter = document.getElementById('action-recommendation-filter')?.value || '';
+    const duplicateFilter = document.getElementById('action-duplicate-filter')?.value || '';
+    const analyzedRows = analyzeActionCenterRows(actionCenterRawRows);
+
+    actionCenterFilteredRows = analyzedRows.filter((row) => {
+        const matchesSearch = !searchTerm || [
+            row['File Name'],
+            row['Folder Path'],
+            row['Reason'],
+            row['Recommended Action'],
+            row['Priority'],
+            row['Duplicate Group'],
+        ].some((value) => (value || '').toString().toLowerCase().includes(searchTerm));
+
+        const matchesPriority = !priorityFilter || row['Priority'] === priorityFilter;
+        const matchesAction = !actionFilter || (row['Recommended Action'] || '').includes(actionFilter);
+        const matchesDuplicate = !duplicateFilter || row['Duplicate Candidate'] === duplicateFilter;
+        return matchesSearch && matchesPriority && matchesAction && matchesDuplicate;
+    });
+
+    sortActionCenterRows(actionCenterFilteredRows);
+
+    actionCenterCurrentPage = 1;
+    renderActionCenterSummary(actionCenterFilteredRows);
+    renderActionCenterTable();
+}
+
+function renderActionCenterSummary(rows) {
+    const counters = {
+        all: rows.length,
+        high: rows.filter((row) => row['Priority'] === 'High').length,
+        medium: rows.filter((row) => row['Priority'] === 'Medium').length,
+        low: rows.filter((row) => row['Priority'] === 'Low').length,
+        veryLow: rows.filter((row) => row['Priority'] === 'Very Low').length,
+        duplicate: rows.filter((row) => row['Duplicate Candidate'] === 'Yes').length,
+    };
+
+    const mappings = {
+        'ac-count-all': counters.all,
+        'ac-count-high': counters.high,
+        'ac-count-medium': counters.medium,
+        'ac-count-low': counters.low,
+        'ac-count-very-low': counters.veryLow,
+        'ac-count-duplicate': counters.duplicate,
+    };
+
+    Object.entries(mappings).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (element) element.innerText = value.toLocaleString();
+    });
+
+    const info = document.getElementById('action-center-info');
+    if (info) {
+        let text = `FOUND: ${rows.length.toLocaleString()} ITEMS`;
+        if (!actionCenterDuplicateDetectionAvailable && actionCenterRawRows.length > 0) {
+            text += ' | DUPLICATE DETECTION UNAVAILABLE FOR THIS REPORT FORMAT';
+        }
+        info.innerText = text;
+    }
+}
+
+function renderActionCenterTable() {
+    const totalPages = Math.ceil(actionCenterFilteredRows.length / actionCenterPageSize) || 1;
+    const start = (actionCenterCurrentPage - 1) * actionCenterPageSize;
+    const pageRows = actionCenterFilteredRows.slice(start, start + actionCenterPageSize);
+    const tbody = document.getElementById('action-center-table');
+    if (!tbody) return;
+
+    tbody.innerHTML = pageRows.map((row, index) => `
+        <tr class="hover:bg-slate-50 border-b border-slate-100 align-top">
+            <td class="p-3 text-center text-slate-400 font-mono">${start + index + 1}</td>
+            <td class="p-3">
+                <div class="text-[9px] text-slate-400 break-all" title="${buildSharePointFolderUrl(row['Folder Path'])}">${buildSharePointFolderUrl(row['Folder Path'])}</div>
+                <div class="font-bold text-slate-700 text-[11px] break-all">${row['File Name'] || '-'}</div>
+            </td>
+            <td class="p-3 text-center font-bold text-slate-500">${row['Extension'] || '-'}</td>
+            <td class="p-3 text-right font-mono">${parseActionCenterNumber(row['Versions Size (MB)']).toFixed(2)}</td>
+            <td class="p-3 text-right font-bold text-slate-900 font-mono">${parseActionCenterNumber(row['Total Size (MB)']).toFixed(2)}</td>
+            <td class="p-3 text-center font-mono">${row['Age (Years)'] || '-'}</td>
+            <td class="p-3 text-center">
+                <span class="inline-flex px-2.5 py-1 rounded-full text-[10px] font-black ${row['Duplicate Candidate'] === 'Yes' ? 'bg-fuchsia-100 text-fuchsia-700' : 'bg-slate-100 text-slate-500'}">
+                    ${row['Duplicate Candidate'] || 'No'}
+                </span>
+            </td>
+            <td class="p-3 text-center font-black ${row['Duplicate Candidate'] === 'Yes' ? 'text-fuchsia-600' : 'text-slate-500'}">${row['Duplicate Count'] || 1}</td>
+            <td class="p-3 text-center">
+                <span class="inline-flex px-2.5 py-1 rounded-full text-[10px] font-black ${getActionCenterPriorityColor(row['Priority'])}">
+                    ${row['Priority'] || 'Info'}
+                </span>
+            </td>
+            <td class="p-3 font-bold text-slate-700">${row['Recommended Action'] || '-'}</td>
+            <td class="p-3 text-[10px] text-slate-600 font-mono">${formatDisplayDateTime(row['Last Datetime of Original Version'])}</td>
+            <td class="p-3 text-[10px] text-slate-500">${row['Reason'] || '-'}</td>
+        </tr>
+    `).join('');
+
+    if (pageRows.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="12" class="p-6 text-center text-slate-400">No matching items</td></tr>';
+    }
+
+    document.getElementById('actionPageInput').value = actionCenterCurrentPage;
+    document.getElementById('action-page-indicator').innerText = `of ${totalPages}`;
+    document.getElementById('actionPrevBtn').disabled = actionCenterCurrentPage === 1;
+    document.getElementById('actionNextBtn').disabled = actionCenterCurrentPage >= totalPages;
+}
+
+function changeActionCenterPage(step) {
+    const totalPages = Math.ceil(actionCenterFilteredRows.length / actionCenterPageSize) || 1;
+    const nextPage = actionCenterCurrentPage + step;
+    if (nextPage >= 1 && nextPage <= totalPages) {
+        actionCenterCurrentPage = nextPage;
+        renderActionCenterTable();
+    }
+}
+
+function goToActionCenterPage(value) {
+    const totalPages = Math.ceil(actionCenterFilteredRows.length / actionCenterPageSize) || 1;
+    let page = parseInt(value, 10);
+    if (Number.isNaN(page) || page < 1) page = 1;
+    if (page > totalPages) page = totalPages;
+    actionCenterCurrentPage = page;
+    renderActionCenterTable();
+}
+
+async function exportActionCenter(format) {
+    if (!actionCenterFilteredRows.length) {
+        alert("No filtered rows available for export.");
+        return;
+    }
+
+    try {
+        const category = document.getElementById('action-cat-select')?.value || 'Current_Scan_Detail';
+        const deptName = document.getElementById('action-file-select')?.value || 'department';
+        const now = new Date();
+        const stamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`;
+        const payload = {
+            format,
+            fileNameBase: `ActionCenter_${category}_${deptName}_${stamp}`,
+            rows: actionCenterFilteredRows,
+            summary: {
+                matchedRows: actionCenterFilteredRows.length,
+                highCount: actionCenterFilteredRows.filter((row) => row['Priority'] === 'High').length,
+                mediumCount: actionCenterFilteredRows.filter((row) => row['Priority'] === 'Medium').length,
+                lowCount: actionCenterFilteredRows.filter((row) => row['Priority'] === 'Low').length,
+                veryLowCount: actionCenterFilteredRows.filter((row) => row['Priority'] === 'Very Low').length,
+                duplicateCount: actionCenterFilteredRows.filter((row) => row['Duplicate Candidate'] === 'Yes').length,
+                duplicateGroups: new Set(
+                    actionCenterFilteredRows
+                        .filter((row) => row['Duplicate Candidate'] === 'Yes')
+                        .map((row) => row['Duplicate Group'])
+                ).size,
+            },
+            meta: {
+                category,
+                deptName,
+                exportedAt: now.toLocaleString(),
+                searchTerm: document.getElementById('actionSearch')?.value || '',
+                priorityFilter: document.getElementById('action-priority-filter')?.value || 'All',
+                actionFilter: document.getElementById('action-recommendation-filter')?.value || 'All',
+            },
+            settings: readActionCenterSettingsFromForm(),
+        };
+
+        const result = await pywebview.api.export_action_center_report(payload);
+        if (!result || !result.success) {
+            if (result && result.cancelled) return;
+            throw new Error(result && result.error ? result.error : "Unable to export report.");
+        }
+
+        let message = `Exported ${format.toUpperCase()} report:\n${result.path}`;
+        if (result.note) message += `\n\nNote: ${result.note}`;
+        alert(message);
+    } catch (error) {
+        console.error("exportActionCenter error:", error);
+        alert("Unable to export Action Center report.");
+    }
+}
+
 async function updateCompareList() {
     try {
         const select = document.getElementById('compare-dept-select');
@@ -600,6 +1395,7 @@ function switchTab(tabName) {
     const pages = {
         'main': 'page-main',
         'scan': 'page-scan',
+        'action-center': 'page-action-center',
         'compare': 'page-compare',
         'after-detail': 'page-after-detail',
         'delete-version': 'page-delete-version' // <--- เพิ่ม ID หน้าใหม่
@@ -608,6 +1404,7 @@ function switchTab(tabName) {
     const btns = {
         'main': 'btn-main',
         'scan': 'btn-scan',
+        'action-center': 'btn-action-center',
         'compare': 'btn-compare',
         'after-detail': 'btn-after-detail',
         'delete-version': 'btn-delete-version' // <--- เพิ่ม ID ปุ่มใหม่
@@ -641,6 +1438,10 @@ function switchTab(tabName) {
     // --- เงื่อนไขการโหลดข้อมูลในแต่ละหน้า ---
     if (tabName === 'scan') {
         updateFileList();
+    }
+    if (tabName === 'action-center') {
+        fillActionCenterSettingsForm();
+        updateActionCenterFileList();
     }
     if (tabName === 'compare') {
         updateCompareList();

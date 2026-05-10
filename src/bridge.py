@@ -7,6 +7,13 @@ import tkinter as tk
 from tkinter import filedialog
 import os
 
+from action_center import (
+    export_action_center_report,
+    reset_action_center_settings,
+    load_action_center_settings,
+    save_action_center_settings,
+)
+
 class SharePointApi:
     def __init__(self):
         self._window = None
@@ -134,6 +141,37 @@ class SharePointApi:
         latest_file = max(files, key=os.path.getmtime)
         
         return self._process_csv(latest_file)
+
+    def get_action_center_settings(self):
+        try:
+            base_dir = self._get_base_path()
+            return {
+                "success": True,
+                "settings": load_action_center_settings(base_dir),
+            }
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    def save_action_center_settings(self, settings):
+        try:
+            base_dir = self._get_base_path()
+            return save_action_center_settings(base_dir, settings)
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    def reset_action_center_settings(self):
+        try:
+            base_dir = self._get_base_path()
+            return reset_action_center_settings(base_dir)
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    def export_action_center_report(self, payload):
+        try:
+            base_dir = self._get_base_path()
+            return export_action_center_report(base_dir, payload)
+        except Exception as e:
+            return {"success": False, "error": str(e)}
 
     def get_main_dashboard_data(self):
         base_dir = self._get_base_path()
